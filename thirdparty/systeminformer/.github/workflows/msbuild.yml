@@ -1,0 +1,42 @@
+name: continuous-integration
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Nuget Packages
+      run: nuget restore .\packages.config -PackagesDirectory .\packages\
+    - name: Build Init
+      shell: cmd
+      working-directory: ${{github.workspace}}
+      run: build\build_init.cmd
+    - name: Build Solution
+      shell: cmd
+      working-directory: ${{github.workspace}}
+      run: build\build_verbose.cmd
+  build_driver:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Nuget Packages
+      run: nuget restore .\packages.config -PackagesDirectory .\packages\
+    - name: Build Tools
+      shell: cmd
+      working-directory: ${{github.workspace}}
+      run: build\build_tools.cmd
+    - name: Build Driver
+      shell: cmd
+      working-directory: ${{github.workspace}}
+      run: build\build_zdriver.cmd prefast
